@@ -1,7 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="124bbfe2-8067-433d-9536-b8da43c65cf9" name="Changes" comment="" />
+    <list default="true" id="124bbfe2-8067-433d-9536-b8da43c65cf9" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Spring/SpringBoot/常用注解.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/Spring基础.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/Spring生命周期.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717503.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717514.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717515.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717516.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717517.jpeg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175210.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175211.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175212.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175213.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717528.jpeg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717529.jpeg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175314.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -47,6 +66,10 @@
       <workItem from="1662212870266" duration="367000" />
       <workItem from="1662213259558" duration="239000" />
       <workItem from="1662303838468" duration="61000" />
+      <workItem from="1662304433254" duration="1647000" />
+      <workItem from="1662651261265" duration="806000" />
+      <workItem from="1662792340044" duration="234000" />
+      <workItem from="1662792705174" duration="287000" />
     </task>
     <task id="LOCAL-00001" summary="Init My Res">
       <created>1662042900802</created>
@@ -69,7 +92,28 @@
       <option name="project" value="LOCAL" />
       <updated>1662213011445</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="update linux">
+      <created>1662307994643</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1662307994643</updated>
+    </task>
+    <task id="LOCAL-00005" summary="update linux">
+      <created>1662308005296</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1662308005296</updated>
+    </task>
+    <task id="LOCAL-00006" summary="update linux">
+      <created>1662308268107</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1662308268107</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -90,6 +134,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Init My Res" />
     <MESSAGE value="update" />
-    <option name="LAST_COMMIT_MESSAGE" value="update" />
+    <MESSAGE value="update linux" />
+    <option name="LAST_COMMIT_MESSAGE" value="update linux" />
   </component>
 </project>
