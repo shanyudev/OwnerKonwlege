@@ -2,24 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="124bbfe2-8067-433d-9536-b8da43c65cf9" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Spring/SpringBoot/常用注解.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/Spring基础.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/Spring生命周期.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717503.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717514.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717515.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717516.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717517.jpeg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175210.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175211.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175212.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175213.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717528.jpeg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-16626509717529.jpeg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640-166265097175314.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Spring/mdimg/640.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,6 +53,7 @@
       <workItem from="1662651261265" duration="806000" />
       <workItem from="1662792340044" duration="234000" />
       <workItem from="1662792705174" duration="287000" />
+      <workItem from="1662817931378" duration="991000" />
     </task>
     <task id="LOCAL-00001" summary="Init My Res">
       <created>1662042900802</created>
@@ -113,7 +97,14 @@
       <option name="project" value="LOCAL" />
       <updated>1662308268107</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="update spring">
+      <created>1662817974793</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1662817974793</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -135,6 +126,7 @@
     <MESSAGE value="Init My Res" />
     <MESSAGE value="update" />
     <MESSAGE value="update linux" />
-    <option name="LAST_COMMIT_MESSAGE" value="update linux" />
+    <MESSAGE value="update spring" />
+    <option name="LAST_COMMIT_MESSAGE" value="update spring" />
   </component>
 </project>
