@@ -501,8 +501,393 @@ public void service(ServletRequest request, ServletResponse response){
     - 我们开发中建议适用debug模式启动Tomcat
 
   - 第十二步：打开浏览器，在浏览器地址栏上输入：http://localhost:8080/xmm/student.html
+  
+# 2HTTP协议
 
-# 2.Servlet对象的生命周期
+####  1、HTTP协议简介
+
+ 超文本传输协议（英文：**H**yper**T**ext **T**ransfer **P**rotocol，缩写：HTTP）是一种用于分布式、协作式和超媒体信息系统的**应用层协议**。HTTP是万维网的数据通信的基础，它和TCP/IP协议簇的其他协议一样，也是用于客户端和服务端的通信。
+
+ HTTP的发展是由蒂姆·伯纳斯-李于1989年在欧洲核子研究组织（CERN）所发起。HTTP的标准制定由万维网协会（World Wide Web Consortium，W3C）和互联网工程任务组（Internet Engineering Task Force，IETF）进行协调，最终发布了一系列的RFC，其中最著名的是1999年6月公布的 RFC 2616，定义了HTTP协议中现今广泛使用的一个版本——HTTP 1.1。
+
+ 2014年12月，互联网工程任务组（IETF）的Hypertext Transfer Protocol Bis（httpbis）工作小组将HTTP/2标准提议递交至IESG进行讨论，于2015年2月17日被批准。 HTTP/2标准于2015年5月以RFC 7540正式发表，取代HTTP 1.1成为HTTP的实现标准。
+
+注：什么是超文本
+
+ 在互联网早期，我们输入的信息只能保存在本地，信息都是以文本的形式存在，但随着计算机的发展，人们不再满足与两台电脑之间的文字传输，还想要传输图片、音频、视频，甚至点击文字能实现超链接跳转，此时文本的语义就被扩大了，这种扩大后的文本就称之为超文本。
+
+#### 2、HTTP协议概述
+
+ HTTP是一个客户端终端（用户）和服务器端（网站）**请求和应答**的标准协议。我们通过使用网页浏览器或者其它的工具发起HTTP请求，这个客户端为我们称之为用户代理程序（user agent），服务器上存储着一些资源，比如HTML文件和图像。我们称这个应答服务器为源服务器（origin server）。
+
+ 通常，由HTTP客户端发起一个请求，此时创建一个到服务器指定端口（默认是80端口）的tcp连接。HTTP服务器则在那个端口监听客户端的请求。一旦收到请求，服务器会向客户端返回一个状态，比如"HTTP/1.1 200 OK"，以及返回的内容，如请求的文件、错误消息、或者其它信息。
+
+#### [#](https://www.ydlclass.com/doc21xnv/javaweb/servlet/#_3、http工作原理)3、HTTP工作原理
+
+以下是 HTTP 请求/响应的步骤：
+
+1. 客户端连接到Web服务器。
+
+ 浏览器向 DNS 服务器请求解析该 URL 中的域名所对应的 IP 地址，一个HTTP客户端，通常是浏览器，与 Web服务器的HTTP端口（默认为80）建立一个TCP套接字连接。
+
+1. 发送HTTP请求。
+
+   通过【TCP套接字】，客户端向Web服务器发送一个文本的请求报文，一个请求报文由【请求行、请求头部、空行和请求数据】4部分组成。
+
+2. 服务器接受请求并返回HTTP响应
+
+   Web服务器【解析请求，定位请求资源】，然后将资源的复本写到TCP套接字，由客户端读取。一个响应由【状态行、响应头部、空行和响应数据】4部分组成。
+
+3. 服务器释放连接TCP连接。
+
+   若connection 模式为close，则服务器主动关闭TCP连接，客户端被动关闭连接，释放TCP连接。
+
+   若connection 模式为keepalive，则该连接会保持一段时间，在该时间内可以继续接收请求。无论如何都会释放。
+
+4. 客户端浏览器解析HTML内容
+
+   客户端浏览器首先解析状态行，查看表明请求是否成功的状态代码。然后解析每一个响应头，响应头告知以下为若干字节的HTML文档和文档的字符集。客户端浏览器读取响应数据HTML，根据HTML的语法对其进行格式化，并在浏览器窗口中显示。
+
+
+
+从以上的内容我们大致可以总结出以下几点：
+
+1、Http是基于请求和响应的。
+
+2、需要依托TCP协议进行三次握手连接、传输数据。
+
+3、 TCP的连接会被主动断开，并不是一直保持连接。
+
+#### [#](https://www.ydlclass.com/doc21xnv/javaweb/servlet/#_4、http报文格式)4、HTTP报文格式
+
+一个完整的HTTP协议的报文主要由以下三个部分组成：
+
+1. 起始行（请求行、响应行）：起始行 start line : 描述请求或响应的基本信息。
+2. 首部字段（请求头、响应头）：使用key-value的形式更加详细的说明报文。
+3. 消息正文（请求体、响应体）：实际的传输数据，不一定是文本，也有可能是图片、音频、视频等二进制数据。
+
+一个请求报文的格式如下：
+
+![image-20210922135409188](mdimg/image-20210922135409188.f00c2289.png)
+
+一个响应的报文格式如下：
+
+![image-20210926112949153](mdimg/image-20210926112949153.5d39d36e.png)
+
+接下来我们一点一点拨开http的面纱。
+
+##### [#](https://www.ydlclass.com/doc21xnv/javaweb/servlet/#_1-http请求方法)（1）HTTP请求方法
+
+ HTTP/1.1协议中共定义了八种方法（也叫“动作”）来以不同方式操作指定的资源，我们目前最常见的有两种一种get，另外一种叫post。
+
+ 请求的目的就是获取或操作资源，互联网的任何数据，我们都能称之为资源，数据库内的一条数据，一个网页，一个视频都是资源。请求的方法决定了我们怎么去操作这个资源。
+
+> GET
+
+向指定的资源发出“显示”请求。使用GET方法应该只用在读取数据，而不应当被用于产生“副作用”的操作中，常用语查询数据的请求。
+
+> POST
+
+向指定资源提交数据，请求服务器进行处理（例如提交表单或者上传文件）。数据被包含在请求本文中。这个请求可能会创建新的资源或修改现有资源，或二者皆有。常用于对数据的增删改操作。
+
+> 请求方式: get与post请求（通过form表单我们自己写写看）
+
+- GET提交的数据会放在URL之后，也就是请求行里面，以?分割URL和传输数据，参数之间以&相连，如EditBook?name=test1&id=123456.（请求头里面那个content-type做的这种参数形式，后面讲） POST方法是把提交的数据放在HTTP包的请求体中.
+- GET提交的数据大小有限制（因为浏览器对URL的长度有限制），而POST方法提交的数据没有限制.
+- GET与POST请求在服务端获取请求数据方式不同，就是我们自己在服务端取请求数据的时候的方式不同了，这句废话昂。
+
+- GET请求和POST请求有什么区别？
+
+- +get请求发送数据的时候，数据会挂在URI的后面，并且在URI后面添加一个“?”，"?"后面是数据。这样会导致发送的数据回显在浏览器的地址栏上。（get请求在“请求行”上发送数据）
+  - http://localhost:8080/servlet05/getServlet?username=zhangsan&userpwd=1111
+- post请求发送数据的时候，在请求体当中发送。不会回显到浏览器的地址栏上。也就是说post发送的数据，在浏览器地址栏上看不到。（post在“请求体”当中发送数据）
+- get请求只能发送普通的字符串。并且发送的字符串长度有限制，不同的浏览器限制不同。这个没有明确的规范。
+- get请求无法发送大数据量。
+- post请求可以发送任何类型的数据，包括普通字符串，流媒体等信息：视频、声音、图片。
+- post请求可以发送大数据量，理论上没有长度限制。
+- get请求在W3C中是这样说的：get请求比较适合从服务器端获取数据。
+- post请求在W3C中是这样说的：post请求比较适合向服务器端传送数据。
+- get请求是安全的。get请求是绝对安全的。为什么？因为get请求只是为了从服务器上获取数据。不会对服务器造成威胁。（get本身是安全的，你不要用错了。用错了之后又冤枉人家get不安全，你这样不好（太坏了），那是你自己的问题，不是get请求的问题。）
+- post请求是危险的。为什么？因为post请求是向服务器提交数据，如果这些数据通过后门的方式进入到服务器当中，服务器是很危险的。另外post是为了提交数据，所以一般情况下拦截请求的时候，大部分会选择拦截（监听）post请求。
+- get请求支持缓存。
+  - https://n.sinaimg.cn/finance/590/w240h350/20211101/b40c-b425eb67cabc342ff5b9dc018b4b00cc.jpg
+  - 任何一个get请求最终的“响应结果”都会被浏览器缓存起来。在浏览器缓存当中：
+    - 一个get请求的路径a  对应  一个资源。
+    - 一个get请求的路径b  对应  一个资源。
+    - 一个get请求的路径c  对应  一个资源。
+    - ......
+  - 实际上，你只要发送get请求，浏览器做的第一件事都是先从本地浏览器缓存中找，找不到的时候才会去服务器上获取。这种缓存机制目的是为了提高用户的体验。
+  - 有没有这样一个需求：我们不希望get请求走缓存，怎么办？怎么避免走缓存？我希望每一次这个get请求都去服务器上找资源，我不想从本地浏览器的缓存中取。
+    - 只要每一次get请求的请求路径不同即可。
+    - https://n.sinaimg.cn/finance/590/w240h350/20211101/7cabc342ff5b9dc018b4b00cc.jpg?t=789789787897898
+    - https://n.sinaimg.cn/finance/590/w240h350/20211101/7cabc342ff5b9dc018b4b00cc.jpg?t=789789787897899
+    - https://n.sinaimg.cn/finance/590/w240h350/20211101/7cabc342ff5b9dc018b4b00cc.jpg?t=系统毫秒数
+    - 怎么解决？可以在路径的后面添加一个每时每刻都在变化的“时间戳”，这样，每一次的请求路径都不一样，浏览器就不走缓存了。
+- post请求不支持缓存。（POST是用来修改服务器端的资源的。）
+  - post请求之后，服务器“响应的结果”不会被浏览器缓存起来。因为这个缓存没有意义。
+- GET请求和POST请求如何选择，什么时候使用GET请求，什么时候使用POST请求？
+  - 怎么选择GET请求和POST请求呢？衡量标准是什么呢？你这个请求是想获取服务器端的数据，还是想向服务器发送数据。如果你是想从服务器上获取资源，建议使用GET请求，如果你这个请求是为了向服务器提交数据，建议使用POST请求。
+  - 大部分的form表单提交，都是post方式，因为form表单中要填写大量的数据，这些数据是收集用户的信息，一般是需要传给服务器，服务器将这些数据保存/修改等。
+  - 如果表单中有敏感信息，还是建议适用post请求，因为get请求会回显敏感信息到浏览器地址栏上。（例如：密码信息）
+  - 做文件上传，一定是post请求。要传的数据不是普通文本。
+  - 其他情况都可以使用get请求。
+- 不管你是get请求还是post请求，发送的请求数据格式是完全相同的，只不过位置不同，格式都是统一的：
+  - name=value&name=value&name=value&name=value
+  - name是什么？
+    - 以form表单为例：form表单中input标签的name。
+  - value是什么？
+    - 以form表单为例：form表单中input标签的value。
+
+##### [#](https://www.ydlclass.com/doc21xnv/javaweb/servlet/#_2-uri)（2）URI
+
+URI叫统一资源标识符 Uniform Resource Identifier，这是一个比较广的概念。
+
+目前，我们有几种方式来表示本机或者网络的一个资源：
+
+1. 通过【定位】的方式来标识资源，这种方式叫【统一资源定位符】，也就是我们说的【URL】（Uniform Resource Locator）。这种方式下我们可以这样表示一个资源，【http://www.aaa.com/image/girl.png】。很明显URL和位置密切相关，一旦目标主机挂了，或者目标资源更换了位置，URL就失效了。
+2. 通过【命名】的方式来标识资源，这种方式叫【统一资源命名符】，也就是我们说的【URN】（Uniform Resource Name）。这种方式下每一个资源都有一个独立的资源名称，比如【DFAS12B12G3HJK1GHJ3G1HJG23G】，根据这个名字我们就能找到对应的资源，但是这种方式下，我们需要有一个解析器负责根据名字找到对应的资源位置，好处是不管资源怎么变动，我们都可以根据资源名字获取资源。
+
+![image-20210924170901449](mdimg/image-20210924170901449.c68153c6.png)
+
+ 但是事实上，理论上URN对我们更友好，但是互联网的资源这么多，专门为这么多资源搭建一个资源解析服务器也不太靠谱，所以我们见到的URI主要是以URL为主，可以说URL 约等于 URI。
+
+我们不妨再回顾一下之前学过的URL格式：
+
+超文本传输协议（HTTP）的统一资源定位符将从因特网获取信息的五个基本元素包括在一个简单的地址中：
+
+- 协议：一般为http或https。
+- URI：直接定位到对应的资源。
+- 主机：通常为域名，有时为IP地址。
+- 端口号：以数字方式表示，若为HTTP的默认值“:80”可省略，数字为0~65536。
+- uri：以“/”字符区别路径中的每一个目录名称，根路径为‘/’。
+- 查询：GET模式的窗体参数，以“?”字符为起点，每个参数以“&”隔开，再以“=”分开参数名称与数据，通常以UTF8的URL编码，避开字符冲突的问题。
+
+```http
+以http://www.ydlclass.com:80/news/index.html?id=250&age=1 为例, 其中：
+```
+
+【http】是协议；【www.xinzhi.com】是服务器； 【80】，是服务器上的默认网络端口号，默认不显示； 【/news/index.html】，是路径（URI：直接定位到对应的资源）； 【?id=250&page=1】，是查询条件。 大多数网页浏览器不要求用户输入网页中“[http://”的部分，因为绝大多数网页内容是超文本传输协议文件。 “80”是超文本传输协议文件的常用默认端口号，因此一般也不必写明。一般来说用户只要键入统一资源定位符的一部分
+
+##### [#](https://www.ydlclass.com/doc21xnv/javaweb/servlet/#_3-响应码)（3）响应码
+
+- 1xx消息——请求已被服务器接收，继续处理
+- 2xx成功——请求已成功被服务器接收、理解、并接受
+- 3xx重定向——需要后续操作才能完成这一请求
+- 4xx请求错误——请求含有词法错误或者无法被执行，客户端
+- 5xx服务器错误——服务器在处理某个正确请求时发生错误，500
+
+一些常见的响应码
+
+|      |                       |                                                              |
+| ---- | --------------------- | ------------------------------------------------------------ |
+| 200  | OK                    | 从客户端发送的请求，服务端已经正常处理了。                   |
+| 204  | No Content            | 服务端已经正常处理了,但是响应中没有实体，也不允许有实体。    |
+| 301  | Moved Permanently     | 永久性，重定向。表示请求的资源已经拥有了新的uri，需要重新访问。 |
+| 302  | Moved Temporarily     | 临时重定向。                                                 |
+| 400  | Bad Request           | 请求报文中存在语法错去。                                     |
+| 401  | Unauthorized          | 请求需要有通过HTTP请求的认证信息。                           |
+| 403  | Forbidden             | 请求被阻止，可能因为某些权限问题，比如访问的文件没有权限等。 |
+| 404  | Not Found             | 表示在服务器上没有你要找的资源                               |
+| 500  | Internal server Error | 服务器执行程序出现异常                                       |
+
+我们用一个简单的例子感受一下重定向：
+
+```java
+public class Server302 {
+    public static void main(String[] args) throws IOException {
+        // 创建一个服务器监听在8888端口
+        ServerSocket serverSocket = new ServerSocket(8888);
+        Socket server = serverSocket.accept();
+
+            OutputStream outputStream = server.getOutputStream();
+            // 按照http协议的格式封装一个可以重定向的报文
+            String response = "HTTP/1.1 302 Moved Temporarily\r\n" +
+                    "Location: https://www.baidu.com\r\n\r\n";
+            // 将报文写出给浏览器
+            outputStream.write(response.getBytes());
+            outputStream.flush();
+            // 这个输出流不要着急关，因为突然的关闭会导致浏览器和服务器的连接断开
+    }
+}
+```
+
+当我们访问 127.0.0.1:8888 时，发现网页居然打开了百度，就相当于自动给我们在浏览器输入http://www.baidu.com，并按下了回车。
+
+![image-20210926121342072](mdimg/image-20210926121342072.a1bc4abd.png)
+
+##### [#](https://www.ydlclass.com/doc21xnv/javaweb/servlet/#_3-http首部字段)（3）http首部字段
+
+ http首部字段是构成http报文的重要元素，它能起到传递额外重要信息的作用，首部信息一般会提供报文类型、编码和大小、认证信息，缓存策略等信息。
+
+**不用记、不用记。**如果需要记忆和深入目前只有一个Content-Type
+
+HTTP/1.1 规范定义了如下 47 种首部字段，分为四大类，我们大致预览一下，不能一一讲解，详情可以通过看书深入理解
+
+1、通用首部字段 9个
+
+| 首部字段名        | 说明                       |
+| ----------------- | -------------------------- |
+| Cache-Control     | 控制缓存的行为             |
+| Connection        | 连接的管理                 |
+| Date              | 创建报文的日期时间         |
+| Pragma            | 报文指令                   |
+| Trailer           | 报文末端的首部一览         |
+| Transfer-Encoding | 指定报文主体的传输编码方式 |
+| Upgrade           | 升级为其他协议             |
+| Via               | 代理服务器的相关信息       |
+| Warning           | 错误通知                   |
+
+2、请求首部字段 共18个
+
+| 首部字段名          | 说明                                          |
+| ------------------- | --------------------------------------------- |
+| Accept              | 用户代理可处理的媒体类型                      |
+| Accept-Charset      | 优先的字符集                                  |
+| Accept-Encoding     | 优先的内容编码                                |
+| Accept-Language     | 优先的语言（自然语言）                        |
+| AuthorizationWeb    | 认证信息                                      |
+| Expect              | 期待服务器的特定行为                          |
+| From                | 用户的电子邮箱地址                            |
+| Host                | 请求资源所在服务器                            |
+| If-Match            | 比较实体标记（ETag）                          |
+| If-Modified-Since   | 比较资源的更新时间                            |
+| If-None-Match       | 比较实体标记（与 If-Match 相反）              |
+| If-Range            | 资源未更新时发送实体 Byte 的范围请求          |
+| If-Unmodified-Since | 比较资源的更新时间（与If-Modified-Since相反） |
+| Max-Forwards        | 最大传输逐跳数                                |
+| Proxy-Authorization | 代理服务器要求客户端的认证信息                |
+| Range               | 实体的字节范围请求                            |
+| Referer             | 对请求中 URI 的原始获取方                     |
+| TE                  | 传输编码的优先级                              |
+| User-Agent          | 客户端程序的信息                              |
+
+3、响应首部字段 共9个
+
+| 首部字段名         | 说明                         |
+| ------------------ | ---------------------------- |
+| Accept-Ranges      | 是否接受字节范围请求         |
+| Age                | 推算资源创建经过时间         |
+| ETag               | 资源的匹配信息               |
+| Location           | 令客户端重定向至指定URI      |
+| Proxy-Authenticate | 代理服务器对客户端的认证信息 |
+| Retry-After        | 对再次发起请求的时机要求     |
+| Server             | HTTP服务器的安装信息         |
+| Vary               | 代理服务器缓存的管理信息     |
+| WWW-Authenticate   | 服务器对客户端的认证信息     |
+
+4、实体首部字段 共10个
+
+| 首部字段名       | 说明                         |
+| ---------------- | ---------------------------- |
+| Allow            | 资源可支持的HTTP方法         |
+| Content-Encoding | 实体主体适用的编码方式       |
+| Content-Language | 实体主体的自然语言           |
+| Content-Length   | 实体主体的大小（单位：字节） |
+| Content-Location | 替代对应资源的URI            |
+| Content-MD5      | 实体主体的报文摘要           |
+| Content-Range    | 实体主体的位置范围           |
+| Content-Type     | 实体主体的媒体类型           |
+| Expires          | 实体主体过期的日期时间       |
+| Last-Modified    | 资源的最后修改日期时间       |
+
+##### [#](https://www.ydlclass.com/doc21xnv/javaweb/servlet/#_4-http内容协商)（4）http内容协商
+
+ 同一个web网页可能存在多个相同内容的网页，比如英文版和中文版，它们内容相同，语言却不同。当浏览器默认的语言不同，访问相同uri会出现不同结果，这种机制就是内容协商。
+
+ 内容协商机制是指客户端和服务器就响应的资源内容进行协商交涉，然后提供给客户端最合适的资源。内容协商会以响应资源的语言、字符集、编码等方式作为判断的标准。
+
+ 共有3种不同的方法可以决定服务器上哪个页面最适合客户端：**让客户端来选择、服务器自动判定、让中间代理来选。这3种技术分别称为客户端驱动的协商、服务器驱动的协商以及透明协商。**
+
+> 客户端驱动
+
+客户端发起请求，服务器发送可选项列表，客户端作出选择后再发送第二次请求。
+
+- 优点：比较容易实现。
+- 缺点：增加了时延，至少要发送两次请求，第一次请求获取资源列表，第二次获取选择的副本。
+
+> 服务器驱动
+
+服务器检查客户端的请求首部集并决定提供哪个版本的页面。
+
+- 优点：比客户端驱动的协商要快。
+- 缺点：首部集不匹配，服务器要做猜测。
+
+> 透明协商
+
+某个中间设备（通常是缓存代理）代表客户端进行协商。
+
+- 优点：免除了web服务器的协商开销，比客户端驱动的协商要快。
+- 缺点：HTTP并没有提供相应的规范。
+
+其中，服务器驱动的解决方案应用较为广泛。
+
+> 通用的内容协商首部集
+
+客户端可以用下面列出的HTTP首部集发送用户的偏好信息：
+
+- Accept：告知服务器发送何种媒体类型；
+- Accept-Language：告知服务器发送何种语言；
+- Accept-Charset：告知服务器发送何种字符集；
+- Accept-Encoding：告知服务器采用何种编码。
+
+【媒体类型】
+
+ 因特网上有数千种不同类型的数据，HTTP仔细地给每种要通过web传输的对象都打上了名为MIME类型（MIME type）的数据格式标签。最初设计MIME（Multipurpose Internet Mali Extension，多用途英特网邮件扩藏）是为了解决在不同的电子邮件系统之间搬移报文时存在的问题。MIME 在电子邮件系统中工作得非常好，因此 HTTP 也采纳了它，用它来描述并标记多媒体内容。
+
+MIME 类型是一种文本标记，表示一种【主要的对象类型】和一个特定的【子类型】，中间由一条斜杠来分隔。
+
+- HTML 格式的文本文档由【text/html】 类型来标记
+- 普通的 ASCII 文本文档由 【text/plain】 类型来标
+- JPEG 版本的图片为 【image/jpeg】 类型
+- GIF 格式的图片为【image/gif】 类型
+- Apple 的 QuickTime 电影为【video/quicktime 】类型
+- 微软的 PowerPoint 演示文件为【application/vnd.ms-powerpoint】类型
+
+当然还有很多很多.....
+
+而我们以后见的最多的要数以下两种，这两种类型都是用来传递数据：
+
+- application/json，学习了前端知识后，想必大家对json已经不再陌生了。
+- application/x-www-form-urlencoded，我们之前都学习过表单，urlencoded格式，又叫 **form** 格式，它是一种表单格式。它使用键值对的方式进行表示，键和值之间用=，多个键值对之间用&
+
+比如我们想在客户端和服务之间传递信息：
+
+可以是这样的
+
+```url
+name=polo&age=35&smoke=false
+```
+
+也可以是
+
+```json
+{
+  "name" :"polo",
+  "age":35,
+  "smoke":false
+}
+```
+
+更多的mimeType可以查看：https://www.w3school.com.cn/media/media_mimeref.asp
+
+【注意】这些首部与实体首部非常类似。不过，这两种首部的用途截然不同。
+
+实体首部集像运输标签，它们描述了把报文从服务器传输给客户端的过程中必须的各种报文主体属性。
+
+而内容协商首部集是由客户端发送给服务器用于交换偏好信息的，以便服务器可以从文档的不同版本中选择出最符合客户端偏好的那个来提供服务。
+
+服务器用下面列出的实体首部集来匹配客户端的Accept首部集：
+
+| Accept首部      | 实体首部         |
+| --------------- | ---------------- |
+| Accept          | Content-Type     |
+| Accept-Language | Content-Language |
+| Accept-Charset  | Content-Type     |
+| Accept-Encoding | Content-Encoding |
+
+目前为止，关于http协议的基础知识我们讲的差不多了，更多的知识会在后期的学习中不断的深入，我们不妨先将我们的小项目完善一下吧。
+
+# 3.Servlet生命周期和实现类
 
 - 什么是Servlet对象生命周期？
 
@@ -632,7 +1017,7 @@ public void service(ServletRequest request, ServletResponse response){
       - destroy方法也很少用。
       - 通常在destroy方法当中，进行资源的关闭。马上对象要被销毁了，还有什么没有关闭的，抓紧时间关闭资源。还有什么资源没保存的，抓紧时间保存一下。
 
-## 2.1GenericServlet
+## 3.1GenericServlet
 
 - 我们编写一个Servlet类直接实现Servlet接口有什么缺点？
 
@@ -694,7 +1079,7 @@ public void service(ServletRequest request, ServletResponse response){
 
 
 
-## 2.2ServletConfig
+## 3.2ServletConfig
 
 - 什么是ServletConfig？
 
@@ -720,7 +1105,7 @@ public void service(ServletRequest request, ServletResponse response){
 
   - 以上方法在Servlet类当中，都可以使用this去调用。因为GenericServlet实现了ServletConfig接口。
 
-## 2.3ServletContext
+## 3.3ServletContext
 
 - 一个Servlet对象对应一个ServletConfig。100个Servlet对象则对应100个ServletConfig对象。
 
@@ -844,263 +1229,9 @@ public void service(ServletRequest request, ServletResponse response){
     - NoSQL数据库。非关系型数据库。缓存数据库。
   - 向ServletContext应用域中存储数据，也等于是将数据存放到缓存cache当中了。
 
-## 2.4HTTP协议
 
-- 什么是协议？
 
-  - 协议实际上是某些人，或者某些组织提前制定好的一套规范，大家都按照这个规范来，这样可以做到沟通无障碍。
-  - 协议就是一套规范，就是一套标准。由其他人或其他组织来负责制定的。
-  - 我说的话你能听懂，你说的话，我也能听懂，这说明我们之间是有一套规范的，一套协议的，这套协议就是：中国普通话协议。我们都遵守这套协议，我们之间就可以沟通无障碍。
-
-- 什么是HTTP协议？
-
-  - HTTP协议：是W3C制定的一种超文本传输协议。（通信协议：发送消息的模板提前被制定好。）
-  - W3C：
-    - 万维网联盟组织
-    - 负责制定标准的：HTTP HTML4.0 HTML5 XML DOM等规范都是W3C制定的。
-    - 万维网之父：蒂姆·伯纳斯·李
-  - 什么是超文本？
-    - 超文本说的就是：不是普通文本，比如流媒体：声音、视频、图片等。
-    - HTTP协议支持：不但可以传送普通字符串，同样支持传递声音、视频、图片等流媒体信息。
-  - 这种协议游走在B和S之间。B向S发数据要遵循HTTP协议。S向B发数据同样需要遵循HTTP协议。这样B和S才能解耦合。
-  - 什么是解耦合？
-    - B不依赖S。
-    - S也不依赖B。
-  - B/S表示：B/S结构的系统（浏览器访问WEB服务器的系统）
-  - 浏览器   向   WEB服务器发送数据，叫做：请求（request)
-  - WEB服务器   向   浏览器发送数据，叫做：响应（response）
-  - HTTP协议包括：
-    - 请求协议
-      - 浏览器  向   WEB服务器发送数据的时候，这个发送的数据需要遵循一套标准，这套标准中规定了发送的数据具体格式。
-    - 响应协议
-      - WEB服务器  向  浏览器发送数据的时候，这个发送的数据需要遵循一套标准，这套标准中规定了发送的数据具体格式。
-  - HTTP协议就是提前制定好的一种消息模板。
-    - 不管你是哪个品牌的浏览器，都是这么发。
-    - 不管你是哪个品牌的WEB服务器，都是这么发。
-    - FF浏览器  可以向 Tomcat发送请求，也可以向Jetty服务器发送请求。浏览器不依赖具体的服务器品牌。
-    - WEB服务器也不依赖具体的浏览器品牌。可以是FF浏览器，也可以是Chrome浏览器，可以是IE，都行。
-
-- HTTP的请求协议（B --> S）
-
-  - HTTP的请求协议包括：4部分
-
-    - 请求行
-    - 请求头
-    - 空白行
-    - 请求体
-
-  - HTTP请求协议的具体报文：GET请求
-
-    - ```
-      GET /servlet05/getServlet?username=lucy&userpwd=1111 HTTP/1.1                           请求行
-      Host: localhost:8080                                                                    请求头
-      Connection: keep-alive
-      sec-ch-ua: "Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"
-      sec-ch-ua-mobile: ?0
-      sec-ch-ua-platform: "Windows"
-      Upgrade-Insecure-Requests: 1
-      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36
-      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-      Sec-Fetch-Site: same-origin
-      Sec-Fetch-Mode: navigate
-      Sec-Fetch-User: ?1
-      Sec-Fetch-Dest: document
-      Referer: http://localhost:8080/servlet05/index.html
-      Accept-Encoding: gzip, deflate, br
-      Accept-Language: zh-CN,zh;q=0.9
-                                                                                              空白行
-                                                                                              请求体
-      ```
-
-    
-
-  - HTTP请求协议的具体报文：POST请求
-
-    - ```
-      POST /servlet05/postServlet HTTP/1.1                                                  请求行
-      Host: localhost:8080                                                                  请求头
-      Connection: keep-alive
-      Content-Length: 25
-      Cache-Control: max-age=0
-      sec-ch-ua: "Google Chrome";v="95", "Chromium";v="95", ";Not A Brand";v="99"
-      sec-ch-ua-mobile: ?0
-      sec-ch-ua-platform: "Windows"
-      Upgrade-Insecure-Requests: 1
-      Origin: http://localhost:8080
-      Content-Type: application/x-www-form-urlencoded
-      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36
-      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
-      Sec-Fetch-Site: same-origin
-      Sec-Fetch-Mode: navigate
-      Sec-Fetch-User: ?1
-      Sec-Fetch-Dest: document
-      Referer: http://localhost:8080/servlet05/index.html
-      Accept-Encoding: gzip, deflate, br
-      Accept-Language: zh-CN,zh;q=0.9
-                                                                                            空白行
-      username=lisi&userpwd=123                                                             请求体
-      ```
-
-  - 请求行
-
-    - 包括三部分：
-      - 第一部分：请求方式（7种）
-        - get（常用的）
-        - post（常用的）
-        - delete
-        - put
-        - head
-        - options
-        - trace
-      - 第二部分：URI
-        - 什么是URI？ 统一资源标识符。代表网络中某个资源的名字。但是通过URI是无法定位资源的。
-        - 什么是URL？统一资源定位符。代表网络中某个资源，同时，通过URL是可以定位到该资源的。
-        - URI和URL什么关系，有什么区别？
-          - URL包括URI
-          - http://localhost:8080/servlet05/index.html 这是URL。
-          - /servlet05/index.html 这是URI。
-      - 第三部分：HTTP协议版本号
-
-  - 请求头
-
-    - 请求的主机
-    - 主机的端口
-    - 浏览器信息
-    - 平台信息
-    - cookie等信息
-    - ....
-
-  - 空白行
-
-    - 空白行是用来区分“请求头”和“请求体”
-
-  - 请求体
-
-    - 向服务器发送的具体数据。
-
-- HTTP的响应协议（S --> B）
-
-  - HTTP的响应协议包括：4部分
-
-    - 状态行
-    - 响应头
-    - 空白行
-    - 响应体
-
-  - HTTP响应协议的具体报文：
-
-    - ```
-      HTTP/1.1 200 ok                                     状态行
-      Content-Type: text/html;charset=UTF-8               响应头
-      Content-Length: 160
-      Date: Mon, 08 Nov 2021 13:19:32 GMT
-      Keep-Alive: timeout=20
-      Connection: keep-alive
-                                                          空白行
-      <!doctype html>                                     响应体
-      <html>
-          <head>
-              <title>from get servlet</title>
-          </head>
-          <body>
-              <h1>from get servlet</h1>
-          </body>
-      </html>
-      ```
-
-  - 状态行
-
-    - 三部分组成
-      - 第一部分：协议版本号（HTTP/1.1）
-      - 第二部分：状态码（HTTP协议中规定的响应状态号。不同的响应结果对应不同的号码。）
-        - 200 表示请求响应成功，正常结束。
-        - 404表示访问的资源不存在，通常是因为要么是你路径写错了，要么是路径写对了，但是服务器中对应的资源并没有启动成功。总之404错误是前端错误。
-        - 405表示前端发送的请求方式与后端请求的处理方式不一致时发生：
-          - 比如：前端是POST请求，后端的处理方式按照get方式进行处理时，发生405
-          - 比如：前端是GET请求，后端的处理方式按照post方式进行处理时，发生405
-        - 500表示服务器端的程序出现了异常。一般会认为是服务器端的错误导致的。
-        - 以4开始的，一般是浏览器端的错误导致的。
-        - 以5开始的，一般是服务器端的错误导致的。
-      - 第三部分：状态的描述信息
-        - ok 表示正常成功结束。
-        - not found 表示资源找不到。
-
-  - 响应头：
-
-    - 响应的内容类型
-    - 响应的内容长度
-    - 响应的时间
-    - ....
-
-  - 空白行：
-
-    - 用来分隔“响应头”和“响应体”的。
-
-  - 响应体：
-
-    - 响应体就是响应的正文，这些内容是一个长的字符串，这个字符串被浏览器渲染，解释并执行，最终展示出效果。
-
-- 怎么查看的协议内容？
-
-  - 使用chrome浏览器：F12。然后找到network，通过这个面板可以查看协议的具体内容。
-
-- 怎么向服务器发送GET请求，怎么向服务器发送POST请求？
-
-  - 到目前为止，只有一种情况可以发送POST请求：使用form表单，并且form标签中的method属性值为：method="post"。
-  - 其他所有情况一律都是get请求：
-    - 在浏览器地址栏上直接输入URL，敲回车，属于get请求。
-    - 在浏览器上直接点击超链接，属于get请求。
-    - 使用form表单提交数据时，form标签中没有写method属性，默认就是get
-    - 或者使用form的时候，form标签中method属性值为：method="get"
-    - ....
-
-### 2.4.1GET请求和POST请求有什么区别？
-
-  - get请求发送数据的时候，数据会挂在URI的后面，并且在URI后面添加一个“?”，"?"后面是数据。这样会导致发送的数据回显在浏览器的地址栏上。（get请求在“请求行”上发送数据）
-    - http://localhost:8080/servlet05/getServlet?username=zhangsan&userpwd=1111
-  - post请求发送数据的时候，在请求体当中发送。不会回显到浏览器的地址栏上。也就是说post发送的数据，在浏览器地址栏上看不到。（post在“请求体”当中发送数据）
-  - get请求只能发送普通的字符串。并且发送的字符串长度有限制，不同的浏览器限制不同。这个没有明确的规范。
-  - get请求无法发送大数据量。
-  - post请求可以发送任何类型的数据，包括普通字符串，流媒体等信息：视频、声音、图片。
-  - post请求可以发送大数据量，理论上没有长度限制。
-  - get请求在W3C中是这样说的：get请求比较适合从服务器端获取数据。
-  - post请求在W3C中是这样说的：post请求比较适合向服务器端传送数据。
-  - get请求是安全的。get请求是绝对安全的。为什么？因为get请求只是为了从服务器上获取数据。不会对服务器造成威胁。（get本身是安全的，你不要用错了。用错了之后又冤枉人家get不安全，你这样不好（太坏了），那是你自己的问题，不是get请求的问题。）
-  - post请求是危险的。为什么？因为post请求是向服务器提交数据，如果这些数据通过后门的方式进入到服务器当中，服务器是很危险的。另外post是为了提交数据，所以一般情况下拦截请求的时候，大部分会选择拦截（监听）post请求。
-  - get请求支持缓存。
-    - https://n.sinaimg.cn/finance/590/w240h350/20211101/b40c-b425eb67cabc342ff5b9dc018b4b00cc.jpg
-    - 任何一个get请求最终的“响应结果”都会被浏览器缓存起来。在浏览器缓存当中：
-      - 一个get请求的路径a  对应  一个资源。
-      - 一个get请求的路径b  对应  一个资源。
-      - 一个get请求的路径c  对应  一个资源。
-      - ......
-    - 实际上，你只要发送get请求，浏览器做的第一件事都是先从本地浏览器缓存中找，找不到的时候才会去服务器上获取。这种缓存机制目的是为了提高用户的体验。
-    - 有没有这样一个需求：我们不希望get请求走缓存，怎么办？怎么避免走缓存？我希望每一次这个get请求都去服务器上找资源，我不想从本地浏览器的缓存中取。
-      - 只要每一次get请求的请求路径不同即可。
-      - https://n.sinaimg.cn/finance/590/w240h350/20211101/7cabc342ff5b9dc018b4b00cc.jpg?t=789789787897898
-      - https://n.sinaimg.cn/finance/590/w240h350/20211101/7cabc342ff5b9dc018b4b00cc.jpg?t=789789787897899
-      - https://n.sinaimg.cn/finance/590/w240h350/20211101/7cabc342ff5b9dc018b4b00cc.jpg?t=系统毫秒数
-      - 怎么解决？可以在路径的后面添加一个每时每刻都在变化的“时间戳”，这样，每一次的请求路径都不一样，浏览器就不走缓存了。
-  - post请求不支持缓存。（POST是用来修改服务器端的资源的。）
-    - post请求之后，服务器“响应的结果”不会被浏览器缓存起来。因为这个缓存没有意义。
-
-- GET请求和POST请求如何选择，什么时候使用GET请求，什么时候使用POST请求？
-
-  - 怎么选择GET请求和POST请求呢？衡量标准是什么呢？你这个请求是想获取服务器端的数据，还是想向服务器发送数据。如果你是想从服务器上获取资源，建议使用GET请求，如果你这个请求是为了向服务器提交数据，建议使用POST请求。
-  - 大部分的form表单提交，都是post方式，因为form表单中要填写大量的数据，这些数据是收集用户的信息，一般是需要传给服务器，服务器将这些数据保存/修改等。
-  - 如果表单中有敏感信息，还是建议适用post请求，因为get请求会回显敏感信息到浏览器地址栏上。（例如：密码信息）
-  - 做文件上传，一定是post请求。要传的数据不是普通文本。
-  - 其他情况都可以使用get请求。
-
-- 不管你是get请求还是post请求，发送的请求数据格式是完全相同的，只不过位置不同，格式都是统一的：
-
-  - name=value&name=value&name=value&name=value
-  - name是什么？
-    - 以form表单为例：form表单中input标签的name。
-  - value是什么？
-    - 以form表单为例：form表单中input标签的value。
-
-## 2.5模板方法设计模式
+## 3.4模板方法设计模式
 
 - 什么是设计模式？
   - 某个问题的固定的解决方案。(可以被重复使用。)
@@ -1130,7 +1261,7 @@ public void service(ServletRequest request, ServletResponse response){
 
 
 
-### 2.5.1HttpServlet源码分析
+### 3.4.1HttpServlet源码分析
 
 - HttpServlet类是专门为HTTP协议准备的。比GenericServlet更加适合HTTP协议下的开发。
 - HttpServlet在哪个包下？
@@ -1341,7 +1472,7 @@ public abstract class HttpServlet extends GenericServlet {
   - 第三步：将Servlet类配置到web.xml文件当中。
   - 第四步：准备前端的页面（form表单），form表单中指定请求路径即可。
 
-## 2.6关于一个web站点的欢迎页面
+## 3.5关于一个web站点的欢迎页面
 
 - 什么是一个web站点的欢迎页面？
 
@@ -1472,13 +1603,13 @@ public abstract class HttpServlet extends GenericServlet {
 
         
 
-## 2.7关于WEB-INF目录
+## 3.6关于WEB-INF目录
 
 - 在WEB-INF目录下新建了一个文件：welcome.html
 - 打开浏览器访问：http://localhost:8080/servlet07/WEB-INF/welcome.html 出现了404错误。
 - 注意：放在WEB-INF目录下的资源是受保护的。在浏览器上不能够通过路径直接访问。所以像HTML、CSS、JS、image等静态资源一定要放到WEB-INF目录之外。
 
-## 2.8HttpServletRequest接口详解
+## 3.7HttpServletRequest接口详解
 
 - HttpServletRequest是一个接口，全限定名称：jakarta.servlet.http.HttpServletRequest
 
@@ -1704,7 +1835,7 @@ public abstract class HttpServlet extends GenericServlet {
           
           ```
 
-### 2.8.1使用纯Servlet做一个单表的CRUD操作
+### 3.7.1使用纯Servlet做一个单表的CRUD操作
 
 - 使用纯粹的Servlet完成单表【对部门的】的增删改查操作。（B/S结构的。）
 
@@ -1984,7 +2115,7 @@ public abstract class HttpServlet extends GenericServlet {
 
   - 第十步：修改部门
 
-### 2.8.2在一个web应用中应该如何完成资源的跳转
+### 3.7.2在一个web应用中应该如何完成资源的跳转
 
 - 在一个web应用中通过两种方式，可以完成资源的跳转：
 
@@ -2052,7 +2183,7 @@ public abstract class HttpServlet extends GenericServlet {
 
 - 转发会存在浏览器的刷新问题。
 
-### 2.8.3将oa项目中的资源跳转修改为合适的跳转方式
+### 3.7.3将oa项目中的资源跳转修改为合适的跳转方式
 
 - 删除之后，重定向
 - 修改之后，重定向
@@ -2061,7 +2192,7 @@ public abstract class HttpServlet extends GenericServlet {
   - 成功
   - 失败
 
-# 3Servlet注解，简化配置
+# 4Servlet注解，简化配置
 
 - 分析oa项目中的web.xml文件
 
@@ -2098,7 +2229,7 @@ public abstract class HttpServlet extends GenericServlet {
 
   - @注解名称(属性名=属性值, 属性名=属性值, 属性名=属性值....)
 
-## 3.1使用模板方法设计模式优化oa项目
+## 4.1使用模板方法设计模式优化oa项目
 
 - 上面的注解解决了配置文件的问题。但是现在的oa项目仍然存在一个比较臃肿的问题。
   - 一个单标的CRUD，就写了6个Servlet。如果一个复杂的业务系统，这种开发方式，显然会导致类爆炸。（类的数量太大。）
@@ -2108,7 +2239,7 @@ public abstract class HttpServlet extends GenericServlet {
   - 可以这样做：一个请求对应一个方法。一个业务对应一个Servlet类。
   - 处理部门相关业务的对应一个DeptServlet。处理用户相关业务的对应一个UserServlet。处理银行卡卡片业务对应一个CardServlet。
 
-## 3.2分析使用纯粹Servlet开发web应用的缺陷
+## 4.2分析使用纯粹Servlet开发web应用的缺陷
 
 - 在Servlet当中编写HTML/CSS/JavaScript等前端代码。存在什么问题？
   - java程序中编写前端代码，编写难度大。麻烦。
@@ -2120,9 +2251,9 @@ public abstract class HttpServlet extends GenericServlet {
   - 思路很重要。使用什么样的思路去做、去解决这个问题
     - 上面的那个Servlet（Java程序）能不能不写了，让机器自动生成。我们程序员只需要写这个Servlet程序中的“前端的那段代码”，然后让机器将我们写的“前端代码”自动翻译生成“Servlet这种java程序”。然后机器再自动将“java”程序编译生成"class"文件。然后再使用JVM调用这个class中的方法。
 
-# 4Session Cookie
+# 5.Session Cookie
 
-## 4.1关于B/S结构系统的会话机制（session机制）
+## 5.1关于B/S结构系统的会话机制（session机制）
 
 - 什么是会话？
 
@@ -2206,7 +2337,7 @@ public abstract class HttpServlet extends GenericServlet {
     session.invalidate();
     ```
 
-## 4.2Cookie
+## 5.2Cookie
 
 - session的实现原理中，每一个session对象都会关联一个sessionid，例如：
 
@@ -2293,210 +2424,427 @@ public abstract class HttpServlet extends GenericServlet {
 
 - 使用cookie实现一下十天内免登录功能。
 
-# 5.JSP
+# 6Listener、Filter
+
+### 一、观察者设计模式
+
+**观察者模式（Observer）**，又叫**发布-订阅模式（Publish/Subscribe）**，定义对象间一种一对多的依赖关系，使得每当一个对象改变状态，则所有依赖于它的对象都会得到通知并自动更新。
+
+#### 1、基本概念
+
+- servlet是一种运行服务器端的java应用程序，它可以用来处理请求和响应。这是我们tomcat容器最重要的组成部分。
+- filter称之为过滤器，不像Servlet，它不处理具体的业务逻辑，它是一个中间者，它能够按照具体的规则拦截我们的请求和响应，并执行响应的操作。
+- listener叫监听器，它用来监听容器内的一些变化，如session的创建，销毁，servlet容器的创建销毁等。当这些内容变化产生时，监听器就要完成一些工作。这是观察者设计模式的典型使用场景。
+
+#### 2、生命周期
+
+**（1）servlet：**servlet的生命周期始于它被装入web服务器的内存时，并在web服务器终止或重新装入servlet时结束。servlet一旦被装入web服务器，一般不会从web服务器内存中删除，直至web服务器关闭或重新结束。
+
+1. 装入：第一次访问，启动服务器时加载Servlet的实例；
+2. 初始化：web服务器启动时或web服务器接收到请求时，或者两者之间的某个时刻启动。初始化工作有init（）方法负责执行完成；
+3. 调用：从第一次到以后的多次访问，都是只调用doGet()或doPost()方法；
+4. 销毁：停止服务器时调用destroy()方法，销毁实例。
+
+**（2）filter：**一定要实现javax.servlet包的Filter接口的三个方法init()、doFilter()、destroy()，空实现也行
+
+1. 启动服务器时加载过滤器的实例，并调用init()方法来初始化实例；
+2. 每一次请求时都只调用方法doFilter()进行处理；
+3. 停止服务器时调用destroy()方法，销毁实例。
+
+**（3）listener：**类似于servlet和filter
+
+servlet2.4规范中提供了8个listener接口，可以将其分为三类，分别如下：
+
+- 第一类：与servletContext有关的listner接口。包括：ServletContextListener、ServletContextAttributeListener
+- 第二类：与HttpSession有关的Listner接口。包括：HttpSessionListner、HttpSessionAttributeListener、HttpSessionBindingListener、 HttpSessionActivationListener；
+- 第三类：与ServletRequest有关的Listener接口，包括：ServletRequestListner、ServletRequestAttributeListener
+
+![image-20210109223910504](mdimg/image-20210109223910504.f8033c5e-16629953728321.png)
+
+web.xml 的加载顺序是：context- param -> listener -> filter -> servlet
+
+#### 3、使用方式
+
+> listener：
+
+这是一个统计在线人数的listener
+
+```java
+public class OnlineCountListener implements HttpSessionListener {
+
+    // session被创建时调用
+    @Override
+    public void sessionCreated(HttpSessionEvent se) {
+        System.out.println("一个session被创建");
+        ServletContext application = se.getSession().getServletContext();
+        Object visitCount = application.getAttribute("onlineCount");
+        if(visitCount == null){
+            application.setAttribute("onlineCount",1);
+        } else {
+            if(visitCount instanceof Integer){
+                Integer count = (Integer) visitCount;
+                application.setAttribute("onlineCount",count+1);
+            } else {
+                throw new RuntimeException("您的数据有误！");
+            }
+        }
+    }
+
+    @Override
+    public void sessionDestroyed(HttpSessionEvent se) {
+        System.out.println("一个session被销毁了");
+        ServletContext application = se.getSession().getServletContext();
+        Object visitCount = application.getAttribute("onlineCount");
+        if(visitCount instanceof Integer){
+            Integer count = (Integer) visitCount;
+            application.setAttribute("onlineCount",Math.max(count - 1,0));
+        } else {
+            throw new RuntimeException("您的数据有误！");
+        }
+    }
+}
+```
+
+这是一个统计访问次数的listener
+
+```java
+public class VisitCountListener implements ServletRequestListener {
+    @Override
+    public void requestInitialized(ServletRequestEvent sre) {
+        ServletContext application = sre.getServletContext();
+        Object visitCount = application.getAttribute("visitCount");
+        if(visitCount == null){
+            application.setAttribute("visitCount",1);
+        } else {
+            if(visitCount instanceof Integer){
+                Integer count = (Integer) visitCount;
+                application.setAttribute("visitCount",count+1);
+            } else {
+                throw new RuntimeException("您的数据有误！");
+            }
+        }
+    }
+}
+```
+
+```xml
+<listener>
+    <listener-class>com.ydlclass.VisitCountListener</listener-class>
+    <listener-class>com.ydlclass.OnlineCountListener</listener-class>
+</listener>
+```
 
-- 我的第一个JSP程序：
 
-  - 在WEB-INF目录之外创建一个index.jsp文件，然后这个文件中没有任何内容。
-
-- 将上面的项目部署之后，启动服务器，打开浏览器，访问以下地址：
 
-  - http://localhost:8080/jsp/index.jsp 展现在大家面前的是一个空白。
-  - 实际上访问以上的这个：index.jsp，底层执行的是：index_jsp.class 这个java程序。
-  - 这个index.jsp会被tomcat翻译生成index_jsp.java文件，然后tomcat服务器又会将index_jsp.java编译生成index_jsp.class文件
-  - 访问index.jsp，实际上执行的是index_jsp.class中的方法。
+> Filter：
 
-- JSP实际上就是一个Servlet。
+这是一个判断用户登录的过滤器：
 
-  - index.jsp访问的时候，会自动翻译生成index_jsp.java，会自动编译生成index_jsp.class，那么index_jsp 这就是一个类。
-  - index_jsp 类继承 HttpJspBase，而HttpJspBase类继承的是HttpServlet。所以index_jsp类就是一个Servlet类。
-  - jsp的生命周期和Servlet的生命周期完全相同。完全就是一个东西。没有任何区别。
-  - jsp和servlet一样，都是单例的。（假单例。）
+```java
+public class LoginFilter extends HttpFilter {
+    @Override
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-- jsp文件第一次访问的时候是比较慢的，为什么？
+        //创建白名单
+        List<String> witheNames = Arrays.asList(request.getContextPath() + "/login", request.getContextPath() + "/login.jsp");
+        // 如果在白名单我就放行
+        if (witheNames.contains(request.getRequestURI())) {
+            chain.doFilter(request, response);
+        } else {
+            HttpSession session = request.getSession(false);
+            // 有用户信息说明已经登录
+            if (session != null && session.getAttribute("user") != null) {
+                chain.doFilter(request, response);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/login.jsp");
+            }
+        }
+    }
+} 
+```
 
-  - 为什么大部分的运维人员在给客户演示项目的时候，为什么提前先把所有的jsp文件先访问一遍。
-  - 第一次比较麻烦：
-    - 要把jsp文件翻译生成java源文件
-    - java源文件要编译生成class字节码文件
-    - 然后通过class去创建servlet对象
-    - 然后调用servlet对象的init方法
-    - 最后调用servlet对象的service方法。
-  - 第二次就比较快了，为什么？
-    - 因为第二次直接调用单例servlet对象的service方法即可。
+配置项：
 
-## 5.1JSP是什么？
+```xml
+<filter>
+    <filter-name>LoginFilter</filter-name>
+    <filter-class>com.ydlclass.LoginFilter</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>LoginFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
 
-  - JSP是java程序。（JSP本质还是一个Servlet）
-  - JSP是：JavaServer Pages的缩写。（基于Java语言实现的服务器端的页面。）
-  - Servlet是JavaEE的13个子规范之一，那么JSP也是JavaEE的13个子规范之一。
-  - JSP是一套规范。所有的web容器/web服务器都是遵循这套规范的，都是按照这套规范进行的“翻译”
-  - 每一个web容器/web服务器都会内置一个JSP翻译引擎。
+# 7 编程式配置
 
-- 对JSP进行错误调试的时候，还是要直接打开JSP文件对应的java文件，检查java代码。
+### 一、servlet、filter、listener的配置
 
-- 开发JSP的最高境界：
+ xml是我们最常见的配置，tomcat在启动时会加载web.xml配置文件，根据配置文件的内容，初始化我们的servlet容器。加载我们的listener、filter、servlet组件等，很明显这是通过反射实例化这些对象。
 
-  - 眼前是JSP代码，但是脑袋中呈现的是java代码。
+ 编程式的配置是将以往在配置文件中进行的配置以编程的方式在代码中直接配置，配置的方式以注解为主，tomcat在启动时会遍历class文件，收集相关的配置信息，加载组件，实例化组件。即使是编程式的配置，web.xml也不能删除，还有一些配置要在web.xml中进行配置的。
 
-- JSP既然本质上是一个Servlet，那么JSP和Servlet到底有什么区别呢？
+如果我们想使用注解进行配置，需要修改一个配置：
 
-  - 职责不同：
-    - Servlet的职责是什么：收集数据。（Servlet的强项是逻辑处理，业务处理，然后链接数据库，获取/收集数据。）
-    - JSP的职责是什么：展示数据。（JSP的强项是做数据的展示）
+```xml
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                      https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0"
+         metadata-complete="false">
+</web-app>
+```
 
-- JSP的基础语法
 
-  - 在jsp文件中直接编写文字，都会自动被翻译到哪里？
 
-    - 翻译到servlet类的service方法的out.write("翻译到这里")，直接翻译到双引号里，被java程序当做普通字符串打印输出到浏览器。
-    - 在JSP中编写的HTML CSS JS代码，这些代码对于JSP来说只是一个普通的字符串。但是JSP把这个普通的字符串一旦输出到浏览器，浏览器就会对HTML CSS JS进行解释执行。展现一个效果。
+ metadata-complete属性必须设置为false，不写这个属性默认就是false，如果是true，注解不生效。这个属性的含义是，我的配置元数据在这个xml中全不全，如果全了我就不扫描相关的类文件了。
 
-  - JSP的page指令（这个指令后面再详细说，这里先解决一下中文乱码问题），解决响应时的中文乱码问题：
+定义Servlet
 
-    - 通过page指令来设置响应的内容类型，在内容类型的最后面添加：charset=UTF-8
-      - <%@page contentType="text/html;charset=UTF-8"%>，表示响应的内容类型是text/html，采用的字符集UTF-8
-      - <%@page import="java.util.List,java.util.ArrayList"%>
+```java
+@WebServlet(name = "myServlet",value = "/my", loadOnStartup = 1,
+        initParams = {@WebInitParam(name = "name", value = "zhangsan"),
+                @WebInitParam(name = "age", value = "13")
+        }
+)
+public class MyServlet extends HttpServlet {
+}
+```
 
-  - 怎么在JSP中编写Java程序：
 
-    - <% java语句; %>
-      - 在这个符号当中编写的被视为java程序，被翻译到Servlet类的service方法内部。
-      - 这里你要细心点，你要思考，在<% %>这个符号里面写java代码的时候，你要时时刻刻的记住你正在“方法体”当中写代码，方法体中可以写什么，不可以写什么，你心里是否明白呢？
-      - 在service方法当中编写的代码是有顺序的，方法体当中的代码要遵循自上而下的顺序依次逐行执行。
-      - service方法当中不能写静态代码块，不能写方法，不能定义成员变量。。。。。。
-      - 在同一个JSP当中 <%%> 这个符号可以出现多个。
-    - <%! %>
-      - 在这个符号当中编写的java程序会自动翻译到service方法之外。
-      - 这个语法很少用，为什么？不建议使用，因为在service方法外面写静态变量和实例变量，都会存在线程安全问题，因为JSP就是servlet，servlet是单例的，多线程并发的环境下，这个静态变量和实例变量一旦有修改操作，必然会存在线程安全问题。
-    - JSP的输出语句
-      - 怎么向浏览器上输出一个java变量。
-      - <% String name = “jack”;  out.write("name = " + name); %>
-      - 注意：以上代码中的out是JSP的九大内置对象之一。可以直接拿来用。当然，必须只能在service方法内部使用。
-      - 如果向浏览器上输出的内容中没有“java代码”，例如输出的字符串是一个固定的字符串，可以直接在jsp中编写，不需要写到<%%> 这里。
-      - 如果输出的内容中含有“java代码”，这个时候可以使用以下语法格式：
-        - <%= %> 注意：在=的后面编写要输出的内容。
-        - <%= %> 这个符号会被翻译到哪里？最终翻译成什么？ 
-          - 翻译成了这个java代码：   out.print();
-          - 翻译到service方法当中了。
-        - 什么时候使用<%=%> 输出呢？输出的内容中含有java的变量，输出的内容是一个动态的内容，不是一个死的字符串。如果输出的是一个固定的字符串，直接在JSP文件中编写即可。
 
-  - 在JSP中如何编写JSP的专业注释
+定义Filter
 
-    - <%--JSP的专业注释，不会被翻译到java源代码当中。--%>
-    - <!--这种注释属于HTML的注释，这个注释信息仍然会被翻译到java源代码当中，不建议。-->
+```java
+@WebFilter("/*")
+public class MyFilter extends HttpFilter {
+    @Override
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        System.out.println("经过了过滤器");
+        chain.doFilter(request,response);
+    }
+}
+```
 
-## 5.2JSP基础语法总结：
 
-    - JSP中直接编写普通字符串
-      - 翻译到service方法的out.write("这里")
-    - <%%>
-      - 翻译到service方法体内部，里面是一条一条的java语句。
-    - <%! %>
-      - 翻译到service方法之外。
-    - <%= %>
-      - 翻译到service方法体内部，翻译为：out.print();
-    - <%@page  contentType="text/html;charset=UTF-8"%>
-      - page指令，通过contentType属性用来设置响应的内容类型。
 
-  - 使用Servlet + JSP完成oa项目的改造。
+定义listener
 
-    - 使用Servlet处理业务，收集数据。 使用JSP展示数据。
+```java
+@WebListener
+public class MySessionListener implements HttpSessionListener {
+}
+```
 
-    - 将之前原型中的html文件，全部修改为jsp，然后在jsp文件头部添加page指令（指定contentType防止中文乱码），将所有的JSP直接拷贝到web目录下。
 
-    - 完成所有页面的正常流转。（页面仍然能够正常的跳转。修改超链接的请求路径。）
 
-      - <%=request.getContextPath() %>  在JSP中动态的获取应用的根路径。
+### 二、Resource
 
-    - Servlet中连接数据库，查询所有的部门，遍历结果集。
+#### 1、JNDI入门
 
-      - 遍历结果集的过程中，取出部门编号、部门名、位置等信息，封装成java对象。
-      - 将java对象存放到List集合中。
-      - 将List集合存储到request域当中。
-      - 转发forward到jsp。
+ JNDI（Java Naming and Directory Interface，Java 命名和目录接口）是一组在Java应用中访问命名服务和目录服务的API。其中，JavaEE要求Web容器（如：tomcat）必须实现JNDI规范。
 
-    - 在JSP中：
+ 怎么理解这一项技术呢？我们可以给每个资源起一个名字，并且构建一成个目录结构，就好比linux系统当中的目录结构一样，这样我们就可以像访问文件这样`/usr/local/config/web.xml`，去访问一个资源，这个资源可以是任意我们可以用java定义的资源，比如我们的数据源。
 
-      - 从request域当中取出List集合。
-      - 遍历List集合，取出每个部门对象。动态生成tr。
+ 资源引用和资源定义的默认 JNDI 命名空间必须始终是*java:comp/env*，这就好比一个默认的文件夹。
 
-    - 思考一个问题：如果我只用JSP这一个技术，能不能开发web应用？
+ 看这个图，我们怎么表示一个mysql的数据源呢？
 
-      - 当然可以使用JSP来完成所有的功能。因为JSP就是Servlet，在JSP的<%%>里面写的代码就是在service方法当中的，所以在<%%>当中完全可以编写JDBC代码，连接数据库，查询数据，也可以在这个方法当中编写业务逻辑代码，处理业务，都是可以的，所以使用单独的JSP开发web应用完全没问题。
-      - 虽然JSP一个技术就可以完成web应用，但是不建议，还是建议采用servlet + jsp的方式进行开发。这样都能将各自的优点发挥出来。JSP就是做数据展示。Servlet就是做数据的收集。（JSP中编写的Java代码越少越好。）一定要职责分明。
+![image-20211009193012897](mdimg/image-20211009193012897.34236252.png)
 
-    - JSP文件的扩展名必须是xxx.jsp吗？
+`java:comp/env/dataSource/mysql` 这样是不是就行呢？
 
-      - jsp文件的扩展名是可以配置的。不是固定的。
+#### 2、JNDI应用：配置数据源
 
-      - 在CATALINA_HOME/conf/web.xml，在这个文件当中配置jsp文件的扩展名。
+##### 1）在tomcat中新增命名服务
 
-      - ```xml
-        <servlet-mapping>
-            <servlet-name>jsp</servlet-name>
-            <url-pattern>*.jsp</url-pattern>
-            <url-pattern>*.jspx</url-pattern>
-        </servlet-mapping>
-        ```
+第一步：向tomcat安装目录下的lib中添加JDBC驱动程序
 
-      - xxx.jsp文件对于小猫咪来说，只是一个普通的文本文件，web容器会将xxx.jsp文件最终生成java程序，最终调用的是java对象相关的方法，真正执行的时候，和jsp文件就没有关系了。
+第二步：修改tomcat中config目录下的context.xml
 
-      - 小窍门：JSP如果看不懂，建议把jsp翻译成java代码，就能看懂了。
+```xml
+<Context>
 
-    - 同学问：包名bean是什么意思？
+    <!-- Default set of monitored resources. If one of these changes, the    -->
+    <!-- web application will be reloaded.                                   -->
+    <WatchedResource>WEB-INF/web.xml</WatchedResource>
+    <WatchedResource>WEB-INF/tomcat-web.xml</WatchedResource>
+    <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
 
-      - javabean（java的logo是一杯冒着热气的咖啡。javabean被翻译为：咖啡豆）
-      - java是一杯咖啡，咖啡又是由一粒一粒的咖啡豆研磨而成。
-      - 整个java程序中有很多bean的存在。由很多bean组成。
-      - 什么是javabean？实际上javabean你可以理解为符合某种规范的java类，比如：
-        - 有无参数构造方法
-        - 属性私有化
-        - 对外提供公开的set和get方法
-        - 实现java.io.Serializable接口
-        - 重写toString
-        - 重写hashCode+equals
-        - ....
-      - javabean其实就是java中的实体类。负责数据的封装。
-      - 由于javabean符合javabean规范，具有更强的通用性。
+    <!-- Uncomment this to enable session persistence across Tomcat restarts -->
+    <!--
+    <Manager pathname="SESSIONS.ser" />
+	
+    -->
+	<Resource name="dataSource/mysql/prod"
+              auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://127.0.0.1:3306/ydlclass?characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai"
+              username="root" password="root"
+              maxTotal="20" maxIdle="10"
+              maxWaitMillis="10000" />
 
-    - 完成剩下所有功能的改造。
+    <Resource name="dataSource/mysql/test"
+              auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://127.0.0.1:3306/boke?characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai"
+              username="root" password="root"
+              maxTotal="20" maxIdle="10"
+              maxWaitMillis="10000" />
+</Context>
+```
 
-- 当前的oa应用存在的问题：
 
-  - 任何一个用户都可以访问这个系统，都可以对这个系统当中的数据进行增删改这些危险的操作。我只想让合法的用户去使用这个系统，不合法的用户不能访问这个系统，怎么办？
-    - 加一个登录功能。登录成功的可以访问该系统，登录失败不能访问。
-  - 实现登录功能：
-    - 步骤1：数据库当中添加一个用户表：t_user
-      - t_user表当中存储的是用户的登录信息，最基本的也包括：登录的用户名和登录的密码。
-      - 密码一般在数据库表当中存储的是密文。一般不以明文的形式存储。（这里先使用明文方式。）
-      - 向t_user表中插入数据。
-    - 步骤2：再实现一个登录页面。
-      - 登录页面上应该有一个登录的表单。有用户名和密码输入的框。
-      - 用户点击登录，提交表单，提交用户名和密码。form是post方式提交。
-    - 步骤3：后台要有一个对应的Servlet来处理登录的请求。
-      - 登录成功：跳转到部门列表页面。
-      - 登录失败：跳转到失败的页面。
-    - 步骤4：再提供一个登录失败的页面。
 
-- 登录功能实现了，目前存在的最大的问题：
+第三步，在代码中访问
 
-  - 这个登录功能目前只是一个摆设，没有任何作用。只要用户知道后端的请求路径，照样可以在不登录的情况下访问。
-  - 这个登录没有真正起到拦截的作用。怎么解决？
+```java
+Context ctx = null;
+try {
+    ctx = new InitialContext();
+    DataSource dataSource = (DataSource)ctx.lookup("java:comp/env/dataSource/mysql");
+    System.out.println(dataSource);
+} catch (Exception e) {
+    e.printStackTrace();
+}
+```
 
+##### 2）在当前工程下新增命名服务
 
+第一步：向WEB-INF/lib目录下添加mysql驱动程序
 
+第二步：在与WEB-INf同级的目录下新建META-INF/context.xml并配置
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <Resource name="dataSource/mysql/prod"
+              auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://127.0.0.1:3306/ydlclass?characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai"
+              username="root" password="root"
+              maxTotal="20" maxIdle="10"
+              maxWaitMillis="10000" />
 
+    <Resource name="dataSource/mysql/test"
+              auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="com.mysql.cj.jdbc.Driver"
+              url="jdbc:mysql://127.0.0.1:3306/boke?characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai"
+              username="root" password="root"
+              maxTotal="20" maxIdle="10"
+              maxWaitMillis="10000" />
 
+</Context>
+```
 
 
 
+##### 3）基础数据类型
 
+```xml
+<env-entry>
+    <env-entry-name>baseUrl</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>D://www/</env-entry-value>
+</env-entry>
+```
 
 
 
+```java
+Context ctx = null;
+try {
+    ctx = new InitialContext();
+    DataSource dataSource = (DataSource)ctx.lookup("java:comp/env/baseUrl");
+    System.out.println(dataSource);
+} catch (Exception e) {
+    e.printStackTrace();
+}
+```
 
 
 
+#### 3、使用JNDI好处
 
+ 以JNDI配置数据源为例，当数据源变更（如：更换数据库类型，更改用户名或密码，更改连接的URL等），只需要web服务器管理员去修改JNDI数据源的配置文件即可，不需要开发人员去修改程序代码，从一定程度上达到了程序解耦的目的。同时，不仅是数据源如此，对于程序使用其他外部资源的情况，也可以使用JNDI配置.
+
+#### 4、@Resource
+
+ 使用@resource注解也可以类似将定义的JNDI资源，注入到变量当中，方法中就可以直接使用了，但是要注意，目前这能在Servlet中使用。
+
+```java
+@WebServlet("/")
+public class MyServlet extends HttpServlet {
+
+    @Resource(lookup="java:comp/env/baseUrl")
+    DataSource dataSource;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println(dataSource);
+    }
+}
+```
+
+
+
+### 三、postConstruct、preDestory
+
+这两个注解提供了，servlet三个生命周期之外的两个回调函数。
+
+```java
+@WebServlet("/")
+public class MyServlet extends HttpServlet {
+
+    public MyServlet() {
+        System.out.println("MyServlet------------");
+    }
+
+    @PostConstruct
+    public void f1(){
+        System.out.println("PostConstruct---------");
+    }
+
+    @PreDestroy
+    public void f2(){
+        System.out.println("PreDestroy---------");
+    }
+
+    @Override
+    public void destroy() {
+        System.out.println("destroy---------");
+    }
+
+    @Override
+    public void init() throws ServletException {
+        System.out.println("init---------");
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("doGet---------");
+    }
+}
+```
+
+
+
+执行顺序如下：
+
+```text
+[2021-10-09 10:10:23,235] Artifact javaweb9: Deploy took 515 milliseconds
+MyServlet------------
+PostConstruct---------
+init---------
+.....
+destroy---------
+PreDestroy---------
+Disconnected from server
+```
+
+## 

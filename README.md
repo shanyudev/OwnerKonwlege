@@ -3,7 +3,7 @@
 ## 1.1[Linux基础](Common\Linux\Linux.md)
 ## 1.2数据库
 ### 1.2.1[SQL函数](Common\SQL\SQL函数.md)
-### 1.2.2[SQL快速参考](Common\SQL\SQL快速参考.md)
+### 1.2.2[SQL快速参考](Common\SQL快速参考.md)
 ### 1.2.3[SQL优化](Common\SQL\SQL优化.md)
 ## 1.3表达式
 ### 1.3.1[正则表达式](Common\表达式\正则表达式.md)
